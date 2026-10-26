@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # 1. Menjalankan pipeline eksperimen paper-aligned lengkap (.cfg -> Train -> Baselines -> Figures -> Report)
+  experiment:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: d3qn-mec:latest
+    container_name: d3qn-mec-experiment
+    volumes:
+      - .:/app
+    command: python3 paper_aligned_code/run_experiment.py --config paper_aligned_code/configs/sudden_shift_reset.cfg
+
+  # 2. Menjalankan training paper-aligned saja
+  train:
+    image: d3qn-mec:latest
+    container_name: d3qn-mec-train
+    volumes:
+      - .:/app
+    command: python3 paper_aligned_code/train.py --config paper_aligned_code/configs/sudden_shift.cfg
+
+  # 3. Menjalankan kode legacy (TensorFlow 1.15.5)
+  legacy:
+    image: d3qn-mec:latest
+    container_name: d3qn-mec-legacy
+    volumes:
+      - .:/app
+    command: python train.py
+
+  # 4. Interactive shell di dalam container
+  shell:
+    image: d3qn-mec:latest
+    container_name: d3qn-mec-shell
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
